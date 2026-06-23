@@ -1,8 +1,6 @@
 ============================================================
  反钠UI (Anti-Sodium UI) — 构建信息 / Build Info
 ============================================================
-
-
 【模组简介】
 Hook Sodium 的视频设置界面替换，恢复原版 Minecraft 视频设置。
 Sodium 启动时会将自己的视频设置界面注入替代原版 VideoSettingsScreen，
@@ -26,13 +24,9 @@ Sodium 启动时会将自己的视频设置界面注入替代原版 VideoSetting
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
 export PATH=$JAVA_HOME/bin:$PATH
 
-# 反编译 class 获取源码
-javap -p -c -cp anti-sodium-ui-1.0.0.jar \
-  com.antisoium.ui.mixin.AntiSodiumUIMixin
-
 # 手动编译（javac）
-javac -source 21 -target 21 \
-  -cp '/storage/.../fabric-loader-0.19.3.jar:/storage/.../26.2-Fabric.jar:build/classes' \
+javac -source 25 -target 25 \
+  -cp '/storage/.../fabric-loader-0.19.3.jar:build/classes' \
   -d build/classes \
   src/main/java/com/antisoium/ui/mixin/AntiSodiumUIMixin.java
 
@@ -85,3 +79,4 @@ anti-sodium-ui.mixins.json:
 
 【版本历史】
 1.0.0 — 初始版本，反射替换视频设置界面
+
