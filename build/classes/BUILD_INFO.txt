@@ -1,0 +1,87 @@
+============================================================
+ 反钠UI (Anti-Sodium UI) — 构建信息 / Build Info
+============================================================
+
+
+【模组简介】
+Hook Sodium 的视频设置界面替换，恢复原版 Minecraft 视频设置。
+Sodium 启动时会将自己的视频设置界面注入替代原版 VideoSettingsScreen，
+本模组通过 Mixin 拦截该注入，用反射构造原版 VideoSettingsScreen 替换回去。
+
+【编译环境】
+- JDK: OpenJDK 21 aarch64 (Android / Linux ARM64)
+- Fabric Loader: 0.19.3
+- Sponge Mixin: 0.17.3+mixin.0.8.7
+- Java 目标版本: 25
+
+【依赖路径（compileOnly）】
+- fabric-loader:  net/fabricmc:fabric-loader:0.19.3
+- sponge-mixin:   net/fabricmc:sponge-mixin:0.17.3+mixin.0.8.7
+- Minecraft:      26.2-Fabric (intermediary 1.21.4)
+- Sodium:         运行时依赖（depends: sodium "*"）
+
+（compileOnly 依赖不打入 JAR，运行时由 FCL 的 Fabric Loader 提供）
+
+【编译命令】
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# 反编译 class 获取源码
+javap -p -c -cp anti-sodium-ui-1.0.0.jar \
+  com.antisoium.ui.mixin.AntiSodiumUIMixin
+
+# 手动编译（javac）
+javac -source 21 -target 21 \
+  -cp '/storage/.../fabric-loader-0.19.3.jar:/storage/.../26.2-Fabric.jar:build/classes' \
+  -d build/classes \
+  src/main/java/com/antisoium/ui/mixin/AntiSodiumUIMixin.java
+
+【打包命令】
+cd build/classes
+jar cf /sdcard/反钠UI-1.0.0.jar \
+  META-INF/ \
+  LICENSE.txt \
+  BUILD_INFO.txt \
+  fabric.mod.json \
+  anti-sodium-ui.mixins.json \
+  com/
+
+【源码结构】
+src/
+└── main/
+    ├── java/
+    │   └── com/antisoium/ui/mixin/
+    │       └── AntiSodiumUIMixin.java    ← 唯一源文件
+    └── resources/
+        ├── fabric.mod.json
+        └── anti-sodium-ui.mixins.json
+
+【核心类说明】
+AntiSodiumUIMixin — 单个 Mixin，注入目标为 Sodium 的视频设置界面返回方法
+  ↓
+replaceWithVanilla(Screen parent, CallbackInfoReturnable<Screen> cir)
+  ├─ 反射获取 Screen.minecraft 字段 → Minecraft 实例
+  ├─ 获取 Minecraft.options
+  ├─ 反射构造 VideoSettingsScreen(Screen parent, Minecraft mc, Options options)
+  └─ cir.setReturnValue(vanillaScreen) → 替换 Sodium 的自定义界面
+
+【Mixin 配置】
+anti-sodium-ui.mixins.json:
+  - package: com.antisoium.ui.mixin
+  - compatibilityLevel: JAVA_17
+  - mixins: [AntiSodiumUIMixin]
+
+【兼容性】
+- 依赖 Sodium 存在（depends sodium "*"），Sodium 不存在时本模组不会加载
+- 环境: 仅客户端（environment: "client"）
+- Minecraft: 26.2 (Mojang 新命名规则，Java 25)
+- 无冲突风险：注入点唯一，仅在 Sodium 存在时触发
+
+【打包结果】
+- 输出文件: 反钠UI-1.0.0.jar
+- 无混淆，类名/方法名完全明文
+- JAR 包含: META-INF/, LICENSE.txt, BUILD_INFO.txt, fabric.mod.json,
+             anti-sodium-ui.mixins.json, com/antisoium/ui/mixin/AntiSodiumUIMixin.class
+
+【版本历史】
+1.0.0 — 初始版本，反射替换视频设置界面
