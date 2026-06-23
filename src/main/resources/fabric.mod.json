@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "anti-sodium-ui",
+  "version": "1.0.0",
+  "name": "反钠UI",
+  "description": "Hook Sodium 的视频设置界面替换，恢复原版 Minecraft 视频设置。",
+  "authors": ["Operit AI"],
+  "license": "AGPL-3.0",
+  "environment": "client",
+  "mixins": [
+    "anti-sodium-ui.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "26.2",
+    "sodium": "*"
+  }
+}
